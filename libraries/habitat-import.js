@@ -670,7 +670,7 @@ const HabitatFrogasaurus = {}
 				document.body.style["margin"] = "0px"
 				document.body.style["overflow"] = "hidden"
 				document.body.appendChild(canvas)
-				stage.context = canvas.getContext("webgl2")
+				stage.context = canvas.getContext("2d", { willReadFrequently: true })
 			}
 
 			on("resize", () => resize(stage))
@@ -712,15 +712,15 @@ const HabitatFrogasaurus = {}
 			canvas.style["margin-bottom"] = marginVertical
 			stage.resize(stage.context)
 		}
-		const tick = (stage, time) => {
+		const tick = (stage) => {
 			stage.clock += stage.speed
 			while (stage.clock > 0) {
-				if (!stage.paused) stage.update(stage.context, time)
-				stage.tick(stage.context, time)
+				if (!stage.paused) stage.update(stage.context)
+				stage.tick(stage.context, stage)
 				stage.clock--
 			}
 
-			requestAnimationFrame((time) => tick(stage, time))
+			requestAnimationFrame(() => tick(stage))
 		}
 
 		HabitatFrogasaurus["./stage.js"].Stage = Stage
