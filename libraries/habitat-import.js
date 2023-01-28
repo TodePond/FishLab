@@ -57,7 +57,7 @@ const HabitatFrogasaurus = {}
 		}
 
 		const wrap = (number, min, max) => {
-			const range = max - min + 1
+			const range = max - min
 			while (number < min) number += range
 			while (number > max) number -= range
 			return number
@@ -875,6 +875,7 @@ const HabitatFrogasaurus = {}
 				const green = GREEN_SPLASH_VALUES[tens]
 				const blue = BLUE_SPLASH_VALUES[ones]
 				super(red, green, blue)
+				this.splash = number
 			}
 		}
 

@@ -1,12 +1,20 @@
-import { _, Stage, HTML, VOID, WHITE, Splash } from "../../libraries/habitat-import.js"
+import { _, Stage, HTML, VOID, WHITE, Splash } from "../../../libraries/habitat-import.js"
 
 export const generateFishImages = () => {
 	const MAX_SPLASH = 999
 	const STATE = {}
 
-	STATE.loading = {}
+	print("Loading...")
+	STATE.loading = {
+		enter() {
+			print("Loading...")
+		},
+	}
 
 	STATE.initialising = {
+		enter() {
+			print("Initialising...")
+		},
 		update(context) {
 			const { canvas } = context
 			context.clearRect(0, 0, canvas.width, canvas.height)
@@ -77,11 +85,11 @@ export const generateFishImages = () => {
 		update(context) {
 			if (this.queue > 0) {
 				this.queue--
-			} else if (performance.now() - this.timeStamp < 1000) {
+			} else if (performance.now() - this.timeStamp < 1500) {
 				return
 			} else {
 				this.timeStamp = performance.now()
-				this.queue = 10
+				this.queue = 5
 			}
 
 			const { canvas } = context
@@ -149,7 +157,7 @@ export const generateFishImages = () => {
 		},
 	}
 
-	const stage = new Stage({ paused: true, speed: 3.0 })
+	const stage = new Stage({ paused: false, speed: 3.0 })
 	stage.start = (context) => {
 		const { canvas } = context
 		canvas.style["background-color"] = VOID
