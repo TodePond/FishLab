@@ -1,4 +1,6 @@
-import { RED } from "../../libraries/habitat-import.js"
+import { COLOURS } from "../../libraries/habitat-import.js"
+
+const quickLoads = new Set(COLOURS.map((colour) => colour.splash))
 
 const preloadImages = () => {
 	const images = new Map()
@@ -7,7 +9,7 @@ const preloadImages = () => {
 		const image = new Image()
 		image.loaded = false
 		images.set(splash, image)
-		const timer = splash === RED.splash ? 0 : splash * 5
+		const timer = quickLoads.has(splash) ? 0 : splash * 5
 		setTimeout(() => (image.src = source), timer)
 		image.onload = () => (image.loaded = true)
 	}

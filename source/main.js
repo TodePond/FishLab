@@ -24,6 +24,10 @@ stage.update = (context) => {
 	school.update()
 
 	const fish = [...school].at(-1)
+	if (fish === undefined) {
+		return
+	}
+
 	for (const key in keyboardControls) {
 		const control = keyboardControls[key]
 		fish.controls[control] = keyboard[key] === true ? 1 : 0
