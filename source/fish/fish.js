@@ -1,5 +1,7 @@
-import { RED, wrap } from "../../libraries/habitat-import.js"
+import { RED, WHITE, wrap } from "../../libraries/habitat-import.js"
+import { rotate } from "../utilities/utilities.js"
 import { Brain } from "./brain.js"
+import { mutateSplash } from "./colour.js"
 import { images } from "./image.js"
 
 const INPUT_NAMES = ["speed"]
@@ -10,7 +12,7 @@ const SHRINK_RATE = 0.999
 const MAX_SPEED = 300
 const MAX_TURN = 0.1
 
-const ACCELERATION = 0.3
+const ACCELERATION = 0.1 //0.3
 const FRICTION = 0.99
 const TURN_FRICTION = 0.95
 const TURN = 0.003
@@ -19,8 +21,9 @@ export const Fish = class {
 	constructor(properties = {}) {
 		Object.assign(this, {
 			colour: RED,
-			scale: 0.3,
+			scale: 0.1,
 			position: [500, 500],
+			rotation: 0,
 
 			...properties,
 		})
@@ -40,7 +43,6 @@ export const Fish = class {
 		this.velocity = [0, 0]
 		this.acceleration = [0, 0]
 
-		this.rotation = 0
 		this.rotationalVelocity = 0
 		this.turn = 0
 
@@ -66,8 +68,33 @@ export const Fish = class {
 		if (flipped) {
 			context.scale(1, -1)
 		}
+		context.drawImage(images.get("eye"), -width / 2, -height / 2)
 		context.drawImage(image, -width / 2, -height / 2)
+
+		//context.fillStyle = WHITE
+		//context.fillRect(0, 0, 10, 10)
+
 		context.restore()
+	}
+
+	getChildren() {
+		const colour1 = new Splash(mutateSplash(this.colour.splash))
+		const colour2 = new Splash(mutateSplash(this.colour.splash))
+		const scale = this.scale * 0.5
+		const rotation = this.rotation
+		const position = this.position
+
+		const child1 = new Fish({ colour: colour1, scale, rotation, position: [...position] })
+		const child2 = new Fish({ colour: colour2, scale, rotation, position: [...position] })
+
+		const velocity1 = rotate([0, 2], rotation)
+		const velocity2 = rotate(velocity1, Math.PI)
+
+		child1.velocity = velocity1
+		child2.velocity = velocity2
+		child1.rotationalVelocity = this.rotationalVelocity
+		child2.rotationalVelocity = this.rotationalVelocity
+		return [child1, child2]
 	}
 
 	think() {
@@ -79,12 +106,15 @@ export const Fish = class {
 	}
 
 	update() {
+		this.speed = Math.hypot(...this.velocity)
 		//this.think()
 		this.applyControls()
 		this.applyPhysics()
 	}
 
 	applyPhysics() {
+		this.scale *= SHRINK_RATE
+
 		if (this.turn > MAX_TURN) {
 			this.turn = MAX_TURN
 		}
@@ -107,7 +137,6 @@ export const Fish = class {
 			this.velocity.x *= MAX_SPEED / speed
 			this.velocity.y *= MAX_SPEED / speed
 		}
-
 		this.speed = Math.hypot(...this.velocity)
 	}
 

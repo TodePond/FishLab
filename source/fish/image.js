@@ -11,6 +11,13 @@ const preloadImages = () => {
 		setTimeout(() => (image.src = source), timer)
 		image.onload = () => (image.loaded = true)
 	}
+
+	const eyeImage = new Image()
+	eyeImage.loaded = false
+	images.set("eye", eyeImage)
+	eyeImage.src = "./images/eyes.png"
+	eyeImage.onload = () => (eyeImage.loaded = true)
+
 	return images
 }
 

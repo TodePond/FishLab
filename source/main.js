@@ -1,4 +1,4 @@
-import { Stage, on } from "../libraries/habitat-import.js"
+import { Stage, on, keyDown, Habitat } from "../libraries/habitat-import.js"
 import { Fish } from "./fish/fish.js"
 import { shared } from "./shared.js"
 import { drawWater } from "./water.js"
@@ -20,36 +20,21 @@ stage.tick = (context) => {
 }
 
 stage.update = (context) => {
-	const { school } = shared
+	const { school, keyboard } = shared
 	school.update()
+
+	const fish = [...school].at(-1)
+	for (const key in keyboardControls) {
+		const control = keyboardControls[key]
+		fish.controls[control] = keyboard[key] === true ? 1 : 0
+	}
 }
 
-on("keydown", (event) => {
-	const { school } = shared
-	for (const fish of school) {
-		if (event.key === "d") {
-			fish.controls.turnUp = 1.0
-		} else if (event.key === "a") {
-			fish.controls.turnDown = 1.0
-		} else if (event.key === "w") {
-			fish.controls.swim = 1.0
-		} else if (event.key === "s") {
-			fish.controls.slow = 1.0
-		}
-	}
-})
+const keyboardControls = {
+	w: "swim",
+	d: "turnUp",
+	a: "turnDown",
+}
 
-on("keyup", (event) => {
-	const { school } = shared
-	for (const fish of school) {
-		if (event.key === "d") {
-			fish.controls.turnUp = 0.0
-		} else if (event.key === "a") {
-			fish.controls.turnDown = 0.0
-		} else if (event.key === "w") {
-			fish.controls.swim = 0.0
-		} else if (event.key === "s") {
-			fish.controls.slow = 0.0
-		}
-	}
-})
+Object.assign(window, shared)
+Object.assign(window, Habitat)
