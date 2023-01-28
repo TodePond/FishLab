@@ -8,6 +8,9 @@ export const School = class extends Set {
 	update() {
 		for (const fish of this) {
 			fish.update()
+			if (fish.scale >= 0.9) {
+				this.delete(fish)
+			}
 		}
 	}
 }

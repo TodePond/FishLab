@@ -3,13 +3,14 @@ import { Brain } from "./brain.js"
 import { images } from "./image.js"
 
 const INPUT_NAMES = ["speed"]
-const OUTPUT_NAMES = ["swim", "slow", "turnUp", "turnDown"]
+const OUTPUT_NAMES = ["swim", "turnUp", "turnDown"]
+
+const SHRINK_RATE = 0.999
 
 const MAX_SPEED = 300
 const MAX_TURN = 0.1
 
 const ACCELERATION = 0.3
-const DECELERATION = 0.5
 const FRICTION = 0.99
 const TURN_FRICTION = 0.95
 const TURN = 0.003
@@ -26,9 +27,6 @@ export const Fish = class {
 
 		this.brain = new Brain(INPUT_NAMES, OUTPUT_NAMES, {
 			swim: {
-				speed: 0,
-			},
-			slow: {
 				speed: 0,
 			},
 			turnUp: {},
@@ -120,6 +118,8 @@ export const Fish = class {
 			// Add accleration in the direction of the fish
 			this.acceleration.x = Math.cos(this.rotation + Math.PI) * ACCELERATION
 			this.acceleration.y = Math.sin(this.rotation + Math.PI) * ACCELERATION
+			//this.scale *= SHRINK_RATE
+			this.scale *= 1.01
 		} else {
 			this.acceleration.x = 0
 			this.acceleration.y = 0
