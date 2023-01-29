@@ -1,4 +1,4 @@
-import { add, clamp, HUES, randomFrom, wrap } from "../../libraries/habitat-import.js"
+import { add, clamp, HUES, randomFrom, wrap, scale } from "../../libraries/habitat-import.js"
 import { shared } from "../shared.js"
 import { iterate, pointInTriangle, rotate } from "../utilities/utilities.js"
 import { Brain } from "./brain.js"
@@ -17,26 +17,29 @@ const INPUT_NAMES = [
 	"greenDown",
 	"blueUp",
 	"blueDown",
+	"rotationalVelocity",
 ]
 const OUTPUT_NAMES = ["swim", "turnUp", "turnDown"]
 
 const SHRINK_RATE = 0.9995
+const MOVE_SHRINK_RATE = 0.9995
+const TURN_SHRINK_RATE = 0.9995
 const OUT_BOUNDS_SHRINK_RATE = 0.98
 export const OUT_BOUNDS_PITY = 100
 
-const MAX_SPEED = 300
-const MAX_TURN = 0.003
+const MAX_SPEED = 100
+const MAX_TURN = 0.002
 const MIN_SPEED = 0.1
 
 const ACCELERATION = 0.3 //0.3
 const FRICTION = 0.97
 const TURN_FRICTION = 0.95
-const TURN = 0.002
+const TURN = 0.0005
 
 const VISION_DISTANCE = 300
 const EATING_DISTANCE = 50
 
-const FOOD_GROWTH = 0.08
+const FOOD_GROWTH = 0.3
 
 export const Fish = class {
 	constructor(properties = {}) {
@@ -44,7 +47,12 @@ export const Fish = class {
 			colour: randomFrom(HUES),
 			scale: 0.1,
 			position: [500, 500],
-			rotation: 0,
+			rotation: Math.PI,
+			brain: new Brain(INPUT_NAMES, OUTPUT_NAMES, {
+				/*swim: {
+					cos: 1,
+				},*/
+			}),
 
 			...properties,
 		})
@@ -56,26 +64,6 @@ export const Fish = class {
 		this.red = red
 		this.green = green
 		this.blue = blue
-
-		this.brain = new Brain(INPUT_NAMES, OUTPUT_NAMES, {
-			swim: {
-				pointerUp: 5,
-				pointerDown: 5,
-				redUp: 5,
-				redDown: 5,
-			},
-			turnUp: {
-				pointerDown: 5,
-				//speed: -0.01,
-				sin: 1.0,
-				redDown: 10,
-			},
-			turnDown: {
-				pointerUp: 5,
-				cos: 0.5,
-				redUp: 10,
-			},
-		})
 
 		this.controls = {}
 		for (const outputName of OUTPUT_NAMES) {
@@ -94,21 +82,19 @@ export const Fish = class {
 	}
 
 	draw(context) {
-		const { image, position, rotation, scale } = this
+		const { image, position, rotation } = this
 		const { width, height } = image
 		if (!image.loaded) {
 			context.fillStyle = this.colour
 			context.fillRect(...position, 10, 10)
+			//print("loading image")
 			return
 		}
 		context.save()
 
 		// Render the fish's vision
-		if (this.controls.swim >= 1.0) {
-			context.globalAlpha = 0.5
-		} else {
-			context.globalAlpha = 0.2
-		}
+
+		context.globalAlpha = 0.2
 		context.fillStyle = this.colour
 		context.beginPath()
 		const vision1 = this.getVision()
@@ -118,11 +104,7 @@ export const Fish = class {
 		context.closePath()
 		context.fill()
 
-		if (this.controls.swim >= 1.0) {
-			context.globalAlpha = 0.5
-		} else {
-			context.globalAlpha = 0.2
-		}
+		context.globalAlpha = 0.2
 		context.beginPath()
 		const vision2 = this.getVision()
 		context.moveTo(...vision2[0])
@@ -136,17 +118,18 @@ export const Fish = class {
 		const flipped = rotation > Math.PI / 2 && rotation < (3 * Math.PI) / 2
 		context.translate(...position)
 		context.rotate(rotation)
-		context.scale(scale, scale)
+		context.scale(this.scale, this.scale)
 		if (flipped) {
 			context.scale(1, -1)
 		}
 		context.drawImage(images.get("eye"), -width / 2, -height / 2)
 		context.drawImage(image, -width / 2, -height / 2)
 
-		//context.fillStyle = WHITE
-		//context.fillRect(0, 0, 10, 10)
-
 		context.restore()
+
+		//context.fillStyle = WHITE
+		//const mouthPosition = rotate(add(scale([-200, 0], this.scale), this.position), this.rotation, this.position)
+		//context.fillRect(...mouthPosition, 10, 10)
 	}
 
 	// Return a triangle that represents the fish's vision
@@ -170,10 +153,10 @@ export const Fish = class {
 		const pointer = shared.pointer.position
 		const top = pointInTriangle(pointer, [vision[0], vision[1], vision[2]])
 		if (top) {
-			return [true, false]
+			return [1, 0]
 		}
 		const bottom = pointInTriangle(pointer, [vision[0], vision[2], vision[3]])
-		return [false, bottom]
+		return [0, bottom ? 1 : 0]
 	}
 
 	seeColour() {
@@ -190,10 +173,12 @@ export const Fish = class {
 
 		const everything = iterate(shared.school, shared.things)
 
-		const mouthPosition = rotate([10, 0], this.rotation)
-		const mouth = add(this.position, mouthPosition)
+		const mouth = rotate(add(scale([-150, 0], this.scale), this.position), this.rotation, this.position)
 
 		for (const thing of everything) {
+			if (thing.type === "fish") {
+				//continue
+			}
 			if (thing === this) {
 				continue
 			}
@@ -201,7 +186,7 @@ export const Fish = class {
 			// Is the thing within eating distance?
 			const distance = Math.hypot(...subtract(thing.position, mouth))
 			if (distance <= EATING_DISTANCE) {
-				if (thing.type !== "fish" || thing.scale < this.scale / 2) {
+				if (thing.type !== "fish" /* || thing.scale < this.scale / 2*/) {
 					eat.add(thing)
 					continue
 				}
@@ -224,6 +209,10 @@ export const Fish = class {
 			}
 		}
 
+		redDown /= 10
+		greenDown /= 10
+		blueDown /= 10
+
 		return {
 			redUp,
 			redDown,
@@ -242,8 +231,14 @@ export const Fish = class {
 		const rotation = this.rotation
 		const position = this.position
 
-		const child1 = new Fish({ colour: colour1, scale, rotation, position: [...position] })
-		const child2 = new Fish({ colour: colour2, scale, rotation, position: [...position] })
+		const brain1 = this.brain.clone()
+		const brain2 = this.brain.clone()
+
+		const child1 = new Fish({ colour: colour1, scale, rotation, position: [...position], brain: brain1 })
+		const child2 = new Fish({ colour: colour2, scale, rotation, position: [...position], brain: brain2 })
+
+		child1.brain.mutate()
+		child2.brain.mutate()
 
 		const velocity1 = rotate([0, 2], rotation)
 		const velocity2 = rotate(velocity1, Math.PI)
@@ -256,9 +251,6 @@ export const Fish = class {
 	}
 
 	think() {
-		const { speed, rotation, velocity } = this
-		const speedInDirection = Math.cos(rotation + Math.PI) * velocity.x + Math.sin(rotation + Math.PI) * velocity.y
-
 		const [pointerUp, pointerDown] = this.seePointer()
 		const colourSee = this.seeColour()
 
@@ -271,20 +263,23 @@ export const Fish = class {
 				this.scale -= FOOD_GROWTH
 				this.scale = clamp(this.scale, 0, Infinity)
 			} else if (thing.type === "fish") {
-				this.scale += FOOD_GROWTH
+				this.scale += thing.scale
 			}
 		}
 
-		const sin = Math.sin(this.age)
-		const cos = Math.cos(this.age)
+		const sin = Math.sin(this.age) + 1
+		const cos = Math.cos(this.age) + 1
+
+		const speed = this.speed / MAX_SPEED
+		const rotationalVelocity = Math.abs(this.rotationalVelocity / MAX_TURN)
 
 		const outputs = this.brain.getOutputs({
 			speed,
-			speedInDirection,
 			pointerUp,
 			pointerDown,
 			sin,
 			cos,
+			rotationalVelocity,
 			...colourSee,
 		})
 		this.controls = outputs
@@ -329,16 +324,6 @@ export const Fish = class {
 
 		this.velocity.x += this.acceleration.x
 		this.velocity.y += this.acceleration.y
-		this.rotationalVelocity += this.turn
-
-		this.position.x += this.velocity.x
-		this.position.y += this.velocity.y
-		this.rotation += this.rotationalVelocity
-		this.rotation = wrap(this.rotation, 0, 2 * Math.PI)
-
-		this.velocity.x *= FRICTION
-		this.velocity.y *= FRICTION
-		this.rotationalVelocity *= TURN_FRICTION
 
 		const speed = Math.hypot(...this.velocity)
 		if (speed > MAX_SPEED) {
@@ -346,6 +331,24 @@ export const Fish = class {
 			this.velocity.y *= MAX_SPEED / speed
 		}
 		this.speed = Math.hypot(...this.velocity)
+		this.rotationalVelocity += this.turn
+
+		this.position.x += this.velocity.x
+		this.position.y += this.velocity.y
+		this.rotation += this.rotationalVelocity
+		this.rotation = wrap(this.rotation, 0, 2 * Math.PI)
+
+		// Slightly level out the fish
+		let needsToRotateClockwise = this.rotation > 0 && this.rotation < Math.PI
+		if (needsToRotateClockwise) {
+			this.rotationalVelocity += 0.001
+		} else {
+			this.rotationalVelocity -= 0.001
+		}
+
+		this.velocity.x *= FRICTION
+		this.velocity.y *= FRICTION
+		this.rotationalVelocity *= TURN_FRICTION
 	}
 
 	applyControls() {
@@ -355,7 +358,7 @@ export const Fish = class {
 			// Add accleration in the direction of the fish
 			this.acceleration.x = Math.cos(this.rotation + Math.PI) * ACCELERATION
 			this.acceleration.y = Math.sin(this.rotation + Math.PI) * ACCELERATION
-			//this.scale *= SHRINK_RATE
+			this.scale *= MOVE_SHRINK_RATE
 			//this.scale *= 1.005
 		} else {
 			this.acceleration.x = 0
@@ -364,10 +367,13 @@ export const Fish = class {
 
 		if (turnUp > 0.0 && turnDown > 0.0) {
 			this.turn = TURN * (turnUp - turnDown)
+			this.scale *= TURN_SHRINK_RATE
 		} else if (turnUp > 0.0) {
 			this.turn = TURN * turnUp
+			this.scale *= TURN_SHRINK_RATE
 		} else if (turnDown > 0.0) {
 			this.turn = -TURN * turnDown
+			this.scale *= TURN_SHRINK_RATE
 		} else {
 			this.turn = 0
 		}
@@ -376,6 +382,8 @@ export const Fish = class {
 			this.turn = MAX_TURN
 		} else if (this.turn < -MAX_TURN) {
 			this.turn = -MAX_TURN
+		} else if (isNaN(this.turn)) {
+			this.turn = 0
 		}
 
 		this.speed = Math.hypot(...this.velocity)

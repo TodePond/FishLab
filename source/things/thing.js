@@ -42,10 +42,10 @@ export const Thing = class {
 		this.position = add(this.position, this.velocity)
 
 		this.velocity = scale(this.velocity, 0.95)
-		this.velocity = add(this.velocity, [0, 0.2])
+		this.velocity = add(this.velocity, [0, 0.05])
 
-		this.position.x = wrap(this.position.x, 0, innerWidth)
-		this.position.y = wrap(this.position.y, 0, innerHeight)
+		//this.position.x = wrap(this.position.x, 0, innerWidth)
+		//this.position.y = wrap(this.position.y, 0, innerHeight)
 	}
 
 	isOutOfBounds() {

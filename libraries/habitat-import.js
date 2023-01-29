@@ -56,11 +56,10 @@ const HabitatFrogasaurus = {}
 			return number
 		}
 
+		// Use modulo to wrap a number around a range
 		const wrap = (number, min, max) => {
 			const range = max - min
-			while (number < min) number += range
-			while (number > max) number -= range
-			return number
+			return ((((number - min) % range) + range) % range) + min
 		}
 
 		const getDigits = (number) => {

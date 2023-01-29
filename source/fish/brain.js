@@ -33,4 +33,39 @@ export const Brain = class {
 		}
 		return outputs
 	}
+
+	clone() {
+		const neurons = {}
+		for (const outputName of this.outputNames) {
+			const neuron = {}
+			for (const inputName of this.inputNames) {
+				neuron[inputName] = this.neurons[outputName][inputName]
+			}
+			neurons[outputName] = neuron
+		}
+		return new Brain(this.inputNames, this.outputNames, neurons)
+	}
+
+	mutate() {
+		for (const neuronName in this.neurons) {
+			const neuron = this.neurons[neuronName]
+			for (const inputName of this.inputNames) {
+				switch (neuronName) {
+					case "swim": {
+						neuron[inputName] += Math.random() * 0.5 - 0.25
+						neuron[inputName] = Math.max(0, neuron[inputName])
+						break
+					}
+					case "turnUp":
+					case "turnDown": {
+						neuron[inputName] += Math.random() * 0.5 - 0.25
+						neuron[inputName] = Math.max(0, neuron[inputName])
+						break
+					}
+				}
+			}
+		}
+
+		print(this.neurons)
+	}
 }

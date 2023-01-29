@@ -1,9 +1,10 @@
-import { RED } from "../../libraries/habitat-import.js"
+import { HUES, randomFrom, RED } from "../../libraries/habitat-import.js"
 
 export const Things = class extends Set {
 	constructor() {
 		super()
-		this.colour = RED //randomFrom(HUES)
+		this.colour = randomFrom(HUES)
+		this.secondaryColour = randomFrom(HUES)
 		this.shape = "circle"
 	}
 

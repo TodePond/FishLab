@@ -1,7 +1,11 @@
 export const mutateSplash = (red, green, blue) => {
-	const newRed = red + Math.floor(Math.random() * 3) - 1
-	const newGreen = green + Math.floor(Math.random() * 3) - 1
-	const newBlue = blue + Math.floor(Math.random() * 3) - 1
+	const redMod = maybe(0.25) ? randomFrom([-1, 1]) : 0
+	const greenMod = maybe(0.25) ? randomFrom([-1, 1]) : 0
+	const blueMod = maybe(0.25) ? randomFrom([-1, 1]) : 0
+
+	const newRed = red + redMod
+	const newGreen = green + greenMod
+	const newBlue = blue + blueMod
 
 	const newDigits = [newRed, newGreen, newBlue].map((v) => Math.max(0, Math.min(9, v)))
 

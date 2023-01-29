@@ -20,8 +20,12 @@ export const School = class extends Set {
 				for (const child of children) {
 					this.add(child)
 				}
-			} else if (fish.scale <= 0.0001) {
-				this.delete(fish)
+			} else if (fish.scale <= 0.03) {
+				if (this.size > 2) {
+					this.delete(fish)
+				} else {
+					fish.scale = 0.03
+				}
 			}
 		}
 	}
