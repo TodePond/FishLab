@@ -67,7 +67,7 @@ stage.update = (context) => {
 			things.add(thing)
 		}
 
-		if (maybe(spawnRate * 0.5)) {
+		if (maybe(spawnRate * 0.33)) {
 			const x = random() % (innerWidth + 300)
 			const y = 0
 			const position = [x, y]
