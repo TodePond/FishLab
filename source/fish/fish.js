@@ -21,7 +21,7 @@ const INPUT_NAMES = [
 ]
 const OUTPUT_NAMES = ["swim", "turnUp", "turnDown"]
 
-const SHRINK_RATE = 0.995
+const SHRINK_RATE = 0.998
 const MOVE_SHRINK_RATE = 0.9995
 const TURN_SHRINK_RATE = 0.9995
 const OUT_BOUNDS_SHRINK_RATE = 0.98
