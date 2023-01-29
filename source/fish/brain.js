@@ -52,13 +52,13 @@ export const Brain = class {
 			for (const inputName of this.inputNames) {
 				switch (neuronName) {
 					case "swim": {
-						neuron[inputName] += Math.random() * 0.5 - 0.25
+						neuron[inputName] += Math.random() * 0.1 - 0.05
 						neuron[inputName] = Math.max(0, neuron[inputName])
 						break
 					}
 					case "turnUp":
 					case "turnDown": {
-						neuron[inputName] += Math.random() * 0.5 - 0.25
+						neuron[inputName] += Math.random() * 0.1 - 0.05
 						neuron[inputName] = Math.max(0, neuron[inputName])
 						break
 					}
@@ -66,6 +66,6 @@ export const Brain = class {
 			}
 		}
 
-		print(this.neurons)
+		//print(this.neurons)
 	}
 }

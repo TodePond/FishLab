@@ -21,7 +21,7 @@ const INPUT_NAMES = [
 ]
 const OUTPUT_NAMES = ["swim", "turnUp", "turnDown"]
 
-const SHRINK_RATE = 0.9995
+const SHRINK_RATE = 0.995
 const MOVE_SHRINK_RATE = 0.9995
 const TURN_SHRINK_RATE = 0.9995
 const OUT_BOUNDS_SHRINK_RATE = 0.98
@@ -34,7 +34,7 @@ const MIN_SPEED = 0.1
 const ACCELERATION = 0.3 //0.3
 const FRICTION = 0.97
 const TURN_FRICTION = 0.95
-const TURN = 0.0005
+const TURN = 0.001
 
 const VISION_DISTANCE = 300
 const EATING_DISTANCE = 50
@@ -341,9 +341,11 @@ export const Fish = class {
 		// Slightly level out the fish
 		let needsToRotateClockwise = this.rotation > 0 && this.rotation < Math.PI
 		if (needsToRotateClockwise) {
-			this.rotationalVelocity += 0.001
+			const angleToLevel = Math.PI - this.rotation
+			this.rotationalVelocity += angleToLevel * 0.001
 		} else {
-			this.rotationalVelocity -= 0.001
+			const angleToLevel = this.rotation - Math.PI
+			this.rotationalVelocity -= angleToLevel * 0.001
 		}
 
 		this.velocity.x *= FRICTION

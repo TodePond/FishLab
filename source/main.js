@@ -58,7 +58,7 @@ stage.update = (context) => {
 		things.update()
 
 		if (maybe(spawnRate)) {
-			const x = random() % innerWidth
+			const x = random() % (innerWidth + 300)
 			const y = 0
 			const position = [x, y]
 			const type = "circle"
@@ -67,8 +67,8 @@ stage.update = (context) => {
 			things.add(thing)
 		}
 
-		if (maybe((spawnRate * 2) / 3)) {
-			const x = random() % innerWidth
+		if (maybe(spawnRate * 0.5)) {
+			const x = random() % (innerWidth + 300)
 			const y = 0
 			const position = [x, y]
 			const type = "square"
