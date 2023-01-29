@@ -18,3 +18,11 @@ export const pointInTriangle = (point, triangle) => {
 	const t = (y3 - y1) * dX + (x1 - x3) * dY
 	return s >= 0 && t >= 0 && s + t <= D
 }
+
+export function* iterate(...iterables) {
+	for (const iterable of iterables) {
+		for (const value of iterable) {
+			yield value
+		}
+	}
+}

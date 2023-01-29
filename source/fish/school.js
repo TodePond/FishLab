@@ -1,7 +1,3 @@
-import { Fish } from "./fish.js"
-import { add } from "../../libraries/habitat-import.js"
-import { rotate } from "../utilities/utilities.js"
-
 export const School = class extends Set {
 	draw(context) {
 		for (const fish of this) {
@@ -24,6 +20,8 @@ export const School = class extends Set {
 				for (const child of children) {
 					this.add(child)
 				}
+			} else if (fish.scale <= 0.0001) {
+				this.delete(fish)
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 import { Stage, on, keyDown, Habitat } from "../libraries/habitat-import.js"
 import { Fish } from "./fish/fish.js"
 import { shared } from "./shared.js"
+import { Thing } from "./things/thing.js"
 import { drawWater } from "./water.js"
 
 const stage = new Stage({})
@@ -15,23 +16,27 @@ stage.tick = (context) => {
 
 	drawWater(context)
 
-	const { school } = shared
+	const { school, things } = shared
 	school.draw(context)
+	things.draw(context)
 }
 
 stage.update = (context) => {
-	const { school, keyboard } = shared
+	const { school, keyboard, things } = shared
 	school.update()
+	things.update()
 
 	const fish = [...school].at(-1)
 	if (fish === undefined) {
 		return
 	}
 
+	/*
 	for (const key in keyboardControls) {
 		const control = keyboardControls[key]
 		fish.controls[control] = keyboard[key] === true ? 1 : 0
 	}
+	*/
 }
 
 const keyboardControls = {
@@ -39,6 +44,22 @@ const keyboardControls = {
 	d: "turnUp",
 	a: "turnDown",
 }
+
+on(
+	"pointerdown",
+	(event) => {
+		const { things } = shared
+		const { colour } = things
+		const position = [event.clientX, event.clientY]
+		const type = event.button === 0 ? "circle" : "square"
+		const thing = new Thing({ colour, position, type })
+		things.add(thing)
+		event.preventDefault()
+	},
+	{ passive: false },
+)
+
+on("contextmenu", (event) => event.preventDefault(), { passive: false })
 
 Object.assign(window, shared)
 Object.assign(window, Habitat)
