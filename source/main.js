@@ -1,15 +1,4 @@
-import {
-	Stage,
-	on,
-	keyDown,
-	Habitat,
-	COLOURS,
-	HUES,
-	WHITE,
-	fireEvent,
-	randomFrom,
-	random,
-} from "../libraries/habitat-import.js"
+import { Habitat, HUES, on, random, Stage, WHITE } from "../libraries/habitat-import.js"
 import { Fish } from "./fish/fish.js"
 import { shared } from "./shared.js"
 import { Thing } from "./things/thing.js"

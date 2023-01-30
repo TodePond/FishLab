@@ -1,4 +1,4 @@
-import { add, clamp, HUES, randomFrom, wrap, scale } from "../../libraries/habitat-import.js"
+import { add, clamp, HUES, randomFrom, scale, wrap } from "../../libraries/habitat-import.js"
 import { shared } from "../shared.js"
 import { iterate, pointInTriangle, rotate } from "../utilities/utilities.js"
 import { Brain } from "./brain.js"
@@ -7,8 +7,6 @@ import { images } from "./image.js"
 
 const INPUT_NAMES = [
 	"speed",
-	"pointerUp",
-	"pointerDown",
 	"sin",
 	"cos",
 	"redUp",
@@ -275,8 +273,6 @@ export const Fish = class {
 
 		const outputs = this.brain.getOutputs({
 			speed,
-			pointerUp,
-			pointerDown,
 			sin,
 			cos,
 			rotationalVelocity,
